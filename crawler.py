@@ -32,12 +32,14 @@ class Crawler(threading.Thread):
             try:
                 self.check_app_status()
 
-                print('> [{source}] Visiting: {url}'.format(source=self.source, url=self.next_url))
+                print('[{time}]> [{source}] Visiting: {url}'.format(
+                    time=datetime.datetime.now().strftime("%d.%m.%Y %H:%M:%S"), source=self.source, url=self.next_url))
                 result_content = self.get_page_content(url=self.next_url)
                 pagination_soup = bs4.BeautifulSoup(result_content, 'lxml')
 
                 for car_url in self.get_car_links(pagination_soup):
-                    print('> [{source}] Visiting car: {url}'.format(source=self.source, url=car_url))
+                    print('[{time}]> [{source}] Visiting car: {url}'.format(
+                        time=datetime.datetime.now().strftime("%d.%m.%Y %H:%M:%S"), source=self.source, url=car_url))
                     result_content = self.get_page_content(url=car_url)
                     car_soup = bs4.BeautifulSoup(result_content, 'lxml')
                     self.check_car_match(car_soup)
@@ -45,7 +47,8 @@ class Crawler(threading.Thread):
 
                 self.next_url = self._get_next_page(pagination_soup)
                 if self.next_url == self.start_url:
-                    print('> [{source}] Reached end of pagination page - sleeping 1 min'.format(source=self.source))
+                    print('[{time}]> [{source}] Reached end of pagination page - sleeping 1 min'.format(
+                        time=datetime.datetime.now().strftime("%d.%m.%Y %H:%M:%S"), source=self.source))
                     time.sleep(60)
 
             except Exception as e:
@@ -79,7 +82,10 @@ class Crawler(threading.Thread):
     def check_app_status(self):
         if (datetime.datetime.now() - self.last_check).seconds >= STATUS_REPORT_FREQ_SEC:
             self.last_check = datetime.datetime.now()
-            self.telegram_app_status_bot.send_message(chat_id=TELEGRAM_APP_STATUS_CHAT_ID, text="[{source}] @ {time}".format(source=self.source, time=self.last_check.strftime("%d.%m.%Y %H:%M:%S")))
+            self.telegram_app_status_bot.send_message(chat_id=TELEGRAM_APP_STATUS_CHAT_ID,
+                                                      text="[{source}] @ {time}".format(source=self.source,
+                                                                                        time=self.last_check.strftime(
+                                                                                            "%d.%m.%Y %H:%M:%S")))
 
     def strip_non_alpha(self, text):
         return re.sub("[^0-9]", "", text)

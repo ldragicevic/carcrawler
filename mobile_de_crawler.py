@@ -1,9 +1,11 @@
 from crawler import Crawler
 from selenium import webdriver
+import os
 import time
 
 JSON_FILE_PATH = 'assets/MD.json'
-CHROME_DRIVER_PATH = 'assets/chromedriver'
+CHROME_DRIVER_PATH = os.path.abspath('assets/chromedriver.exe')
+
 
 class MdCrawler(Crawler):
 
