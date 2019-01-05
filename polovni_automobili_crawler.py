@@ -1,5 +1,5 @@
 from crawler import Crawler
-import time
+from time import sleep
 
 JSON_FILE_PATH = 'assets/PA.json'
 
@@ -49,4 +49,4 @@ class PaCrawler(Crawler):
 
         except Exception as e:
             print(e)
-            time.sleep(10)
+            sleep(10)

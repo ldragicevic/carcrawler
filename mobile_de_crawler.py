@@ -1,19 +1,26 @@
+from os.path import abspath
+from time import sleep
 from crawler import Crawler
 from selenium import webdriver
-import os
-import time
+from selenium.webdriver import ChromeOptions
+from fake_useragent import UserAgent
 
 JSON_FILE_PATH = 'assets/MD.json'
-CHROME_DRIVER_PATH = os.path.abspath('assets/chromedriver.exe')
+CHROME_DRIVER_PATH = abspath('assets/chromedriver_linux')
 
 
 class MdCrawler(Crawler):
 
     def __init__(self, start_url, source):
         super().__init__(start_url, source)
+        chrome_options = ChromeOptions()
+        chrome_options.binary_location = "/usr/bin/google-chrome"
+        chrome_options.add_argument('user-agent=' + UserAgent()['google chrome'])
+        chrome_options.add_argument('--headless')
+        chrome_options.add_argument('--no-sandbox')
+        self.web_driver_chrome = webdriver.Chrome(executable_path=CHROME_DRIVER_PATH, options=chrome_options)
         serialized_arr = self.read_data_from_json_file(JSON_FILE_PATH)
         self.sent_ids = [] if serialized_arr is None else serialized_arr
-        self.web_driver_chrome = webdriver.Chrome(executable_path=CHROME_DRIVER_PATH)
 
     def get_page_content(self, url):
         self.web_driver_chrome.get(url)
@@ -53,7 +60,8 @@ class MdCrawler(Crawler):
             cubic = car_soup.find('div', {'id': 'rbt-cubicCapacity-v'}).text
             power = car_soup.find('div', {'id': 'rbt-power-v'}).text
 
-            content = ' | '.join([title, price, km, first_registration, mileage, emission, fuel, cubic, power, self.shorten_url(url)])
+            content = ' | '.join(
+                [title, price, km, first_registration, mileage, emission, fuel, cubic, power, self.shorten_url(url)])
 
             if id in self.sent_ids:
                 print("> MobileDe: ID {id} is already sent".format(id=id))
@@ -68,4 +76,4 @@ class MdCrawler(Crawler):
 
         except Exception as e:
             print(e)
-            time.sleep(10)
+            sleep(10)
